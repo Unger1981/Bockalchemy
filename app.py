@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from data_models import  Authors, Books, add_to_db, get_data, get_cover_author, db
+from data_models import  Authors, Books, add_to_db, get_data, get_cover, db
 import os
 
 db_path = os.path.abspath(os.path.join("data", "library.sqlite"))
@@ -45,23 +45,25 @@ def add_author():
                add_to_db(new_author)
           except Exception as e:
                return jsonify(message=(f"Couldnt store to database. Error {e}")), 500    
-               
           return redirect(url_for('home'), code=302)
          
 
 @app.route("/add_book", methods = ['GET', 'POST'])
 def add_book():
      if request.method == "GET":
-          print("Generated Template")
-          return render_template('add_book.html')
-          
+          try:
+               data = get_data()
+               books, authors = data  
+          except Exception as e:
+               return jsonify(message= f"Couldnt receive data from database.Error {e}" ), 500 
+          return render_template('add_book.html', books=books, authors=authors), 200
      elif request.method == "POST":
           title = request.form.get('title')
           isbn = request.form.get('isbn')
-          book_cover,author = get_cover_author(isbn)
+          author_id = request.form.get('author')
+          book_cover = get_cover(isbn)
           publication_year = request.form.get('publication_year')
-          new_book = Books(title = title , author = author , isbn = isbn , book_cover = book_cover , publication_year=publication_year)
-          print(new_book)
+          new_book = Books(title = title , author_id = author_id , isbn = isbn , book_cover = book_cover , publication_year=publication_year)
           try:
                add_to_db(new_book)
           except Exception as e:

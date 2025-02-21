@@ -13,28 +13,30 @@ db = SQLAlchemy()
 
 
 class Authors(Base):
-    __tablename__ = 'authors' 
- 
-    id = Column(Integer, primary_key=True, autoincrement=True) 
-    name = Column(String) 
-    birthdate = Column(String) 
-    date_of_death = Column(String) 
- 
-    def __repr__(self): 
+    __tablename__ = 'authors'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    birthdate = Column(String)
+    date_of_death = Column(String)
+    books = relationship("Books", back_populates="author")  # Correct placement
+
+    def __repr__(self):
         return f"Author(id={self.id}, name={self.name})"
 
 
 class Books(Base):
-    __tablename__ = 'books' 
- 
-    id = Column(Integer, primary_key=True, autoincrement=True) 
-    isbn = Column(String) 
-    title = Column(String) 
-    author = Column(String)
-    book_cover = Column(String)
-    publication_year = Column(Integer) 
+    __tablename__ = 'books'
 
-    def __repr__(self): 
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    isbn = Column(String)
+    title = Column(String)
+    author_id = Column(Integer, ForeignKey('authors.id'))  # Foreign key to authors table
+    author = relationship("Authors", back_populates="books")  # Relationship with Authors
+    book_cover = Column(String)
+    publication_year = Column(Integer)
+
+    def __repr__(self):
         return f"Book(id={self.id}, title={self.title})"
 
 
@@ -58,13 +60,14 @@ def get_data():
         return jsonify(message=f"Requested data not found. Error: {e}"), 500
 
 
-def get_cover_author(isbn):
+def get_cover(isbn):
     url=f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
-    # try:
-    response = requests.get(url)
-    data = response.json()
-    cover_url = data["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"]
-    author = data["items"][0]["volumeInfo"]["authors"]
-    return cover_url , author
+    try:
+        response = requests.get(url)
+        data = response.json()
+        cover_url = data["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"]
+        return cover_url 
+    except Exception as e:     
+        print(f"Couldnt get book cover from API. Error:{e}")
+        return "no cover"
 
-print(get_cover_author(9783641057367))
