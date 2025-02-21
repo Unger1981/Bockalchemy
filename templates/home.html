@@ -1,29 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  </head>
-  <body>
+    <title>Bookalchemy Books</title>
+</head>
+<body>
    
     <h1>Bookalchemy Books</h1>
-    {% for book in books %}
-    <div> 
-        <h2>{{ book.title }}</h2>
-    </div>
-    <div> 
-      <!-- Check if the author exists -->
-      {% if book.author %}
-        <h3>{{ book.author.name }}</h3>
-      {% else %}
-        <h2>Unknown Author</h2>
-      {% endif %}
-    </div>
-    <div>
-      <img src="{{ book.book_cover }}" alt="Book cover for {{ book.title }}">
-    </div>
-    {% endfor %}
 
-  </body>
+    <!-- Search Form -->
+    <form action="/" method="GET">
+        <input type="text" name="search" placeholder="Search by title or author..." value="{{ search_query }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Sorting Buttons -->
+    <button onclick="location.href='/?sort_by=title'">Sort by Title</button>
+    <button onclick="location.href='/?sort_by=author'">Sort by Author</button>
+
+    {% if books %}
+        {% for book in books %}
+        <div> 
+            <h2>{{ book.title }}</h2>
+        </div>
+        <div> 
+            {% if book.author %}
+                <h3>{{ book.author.name }}</h3>
+            {% else %}
+                <h3>Unknown Author</h3>
+            {% endif %}
+        </div>
+        <div>
+            {% if book.book_cover %}
+                <img src="{{ book.book_cover }}" alt="Book cover for {{ book.title }}">
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <h2>No books found for "{{ search_query }}"</h2>
+    {% endif %}
+
+</body>
 </html>
