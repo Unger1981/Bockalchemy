@@ -6,14 +6,17 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
   </head>
   <body>
-    <h1>Bookalchemy Authors</h1>
-    {% for author in authors %}
-    <div> <h3>{{ author.name }}</h3>
-    </div>
-    {% endfor %}
+   
     <h1>Bookalchemy Books</h1>
     {% for book in books %}
-    <div> <h3>{{ book.title }}</h3>
+    <div> 
+        <h3>{{ book.title }}</h3>
+    </div>
+    <div> 
+      <h2>{{ book.author }}</h2>
+  </div>
+    <div>
+      <img src="{{ book.book_cover }}" alt="Book cover for {{ book.title }}">
     </div>
     {% endfor %}
 
