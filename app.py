@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from data_models import Authors, Books, add_to_db, get_data, get_cover, db
+from data_models import Authors, Books, add_to_db, get_data, get_cover, db, shutdown_session
 import os
 
 db_path = os.path.abspath(os.path.join("data", "library.sqlite"))
@@ -104,6 +104,27 @@ def add_book():
         except Exception as e:
             return jsonify(message=f"Could not store to database. Error: {e}"), 500  
         return redirect(url_for('home'), code=302)
+
+@app.route("/book/<int:book_id>/delete", methods=['GET', 'POST'])
+def delete_book(book_id):    
+    book_to_delete = db.session.get(Books, book_id)
+    if book_to_delete:
+        db.session.delete(book_to_delete)
+        db.session.commit()
+    data = get_data()
+    books, authors = data
+    book_count = 0
+    for book in books:
+        if book_to_delete.author_id == book.author_id:
+            book_count+=1
+    if book_count == 0:
+        print("Author deletion")
+        author_to_delete = db.session.query(Authors).get(book_to_delete.author_id)
+        db.session.delete(author_to_delete)
+        db.session.commit()
+    shutdown_session()
+
+    return redirect('/')   
 
 if __name__ == "__main__":
     """

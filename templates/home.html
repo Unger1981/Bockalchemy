@@ -37,6 +37,9 @@
                 <img src="{{ book.book_cover }}" alt="Book cover for {{ book.title }}">
             {% endif %}
         </div>
+            <form action="/book/{{ book.id }}/delete" method="POST">
+                <button type="submit" formmethod="post">Delete</button>
+            </form>
         {% endfor %}
     {% else %}
         <h2>No books found for "{{ search_query }}"</h2>

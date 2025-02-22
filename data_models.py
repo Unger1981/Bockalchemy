@@ -56,6 +56,7 @@ def add_to_db(db_object):
     try:
         db.session.add(db_object)
         db.session.commit()
+        shutdown_session()
     except Exception as e:
         return jsonify(message=f"Unable to store object into Database. Error: {e}"), 500
 
@@ -66,6 +67,7 @@ def get_data():
     try:
         books = session.query(Books).all()
         authors = session.query(Authors).all()
+        shutdown_session()
         return books, authors
     except Exception as e:
         return jsonify(message=f"Requested data not found. Error: {e}"), 500
@@ -83,3 +85,7 @@ def get_cover(isbn):
     except Exception as e:
         print(f"Could not get book cover from API. Error: {e}")
         return "no cover"
+
+def shutdown_session(exception=None):
+    db.session.remove()        
+
